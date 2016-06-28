@@ -16,9 +16,9 @@ public class MultiClient implements Runnable {
   public static void main(String[] args) {
 
     // The default port.
-    int portNumber = 2222;
+    int portNumber = Integer.parseInt(args[1]);
     // The default host.
-    String host = "localhost";
+    String host = args[0];
 
     if (args.length < 2) {
       System.out
