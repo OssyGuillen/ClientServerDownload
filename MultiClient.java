@@ -22,7 +22,7 @@ public class MultiClient implements Runnable {
 
     if (args.length < 2) {
       System.out
-          .println("Usage: java MultiThreadChatClient <host> <portNumber>\n"
+          .println("Usage: java MultiClient <host> <portNumber>\n"
               + "Now using host=" + host + ", portNumber=" + portNumber);
     } else {
       host = args[0];
