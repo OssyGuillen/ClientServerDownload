@@ -16,9 +16,9 @@ public class MultiClient implements Runnable {
   public static void main(String[] args) {
 
     // The default port.
-    int portNumber = Integer.parseInt(args[1]);
+    int portNumber = 1234;
     // The default host.
-    String host = args[0];
+    String host = "localhost";
 
     if (args.length < 2) {
       System.out
@@ -69,7 +69,7 @@ public class MultiClient implements Runnable {
   }
 
   /*
-   * Create a thread to read from the server. (non-Javadoc)
+   * Create a thread to read from the server.
    * 
    * @see java.lang.Runnable#run()
    */
@@ -84,6 +84,23 @@ public class MultiClient implements Runnable {
         System.out.println(responseLine);
         if (responseLine.indexOf("*** Bye") != -1)
           break;
+        if (responseLine.equals("Registering...")) {
+           File file = new File("cert.pem");
+          // Get the size of the file
+          long length = file.length();
+          byte[] bytes = new byte[16 * 1024];
+          InputStream in = new FileInputStream(file);
+          OutputStream out = clientSocket.getOutputStream();
+
+          int count;
+          while ((count = in.read(bytes)) > 0) {
+              out.write(bytes, 0, count);
+          }
+
+          out.close();
+          in.close();
+        }
+
       }
       closed = true;
     } catch (IOException e) {

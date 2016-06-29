@@ -28,7 +28,7 @@ public class MultiDownloadServerClient {
       portAsServer = Integer.parseInt(args[2]);
       host = args[0];
     }
-    DownloadServer(portNumber);
+    DownloadServer(portAsServer);
   }
 
   public static void DownloadServer(int portNumber) {

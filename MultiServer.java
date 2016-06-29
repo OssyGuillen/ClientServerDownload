@@ -1,5 +1,9 @@
 import java.io.*;
 import java.net.*;
+import java.security.cert.X509Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateException;
+import java.security.PublicKey;
 
 /*
  * A chat server that delivers public and private messages.
@@ -28,8 +32,23 @@ public class MultiServer {
           + "Now using port number=" + portNumber);
     }
 
+    // /*
+    //  * Send the server's certificate.
+    //  */
+    // try {
+    //   FileInputStream fin = new FileInputStream("cert.pem");
+    //   CertificateFactory f = CertificateFactory.getInstance("X.509");
+    //   X509Certificate certificate = (X509Certificate)f.generateCertificate(fin);
+    //   PublicKey pk = certificate.getPublicKey();
+
+    // } catch (FileNotFoundException ex) {
+
+    // } catch (CertificateException ex) {
+
+    // }
+
     /*
-     * Open a server socket on the portNumber (default 2222). Note that we can
+     * Open a server socket on the portNumber. Note that we can
      * not choose a port less than 1023 if we are not privileged users (root).
      */
     try {
@@ -91,32 +110,49 @@ class clientThread extends Thread {
        */
       is = new DataInputStream(clientSocket.getInputStream());
       os = new PrintStream(clientSocket.getOutputStream());
-      String name;
-      while (true) {
-        os.println("Enter your name.");
-        name = is.readLine().trim();
-        if (name.indexOf('@') == -1) {
-          break;
-        } else {
-          os.println("The name should not contain '@' character.");
-        }
-      }
-
+      String name = "name";
+      String password = "";
       /* Welcome the new the client. */
-      os.println("Welcome " + name
-          + " to our chat room.\nTo leave enter /quit in a new line.");
+      os.println("Welcome "
+          + " to our chat room.\nTo leave enter QUIT in a new line.");
       /* Start the conversation. */
       while (true) {
         String line = is.readLine();
-        if (line.startsWith("/quit")) {
+        if (line.startsWith("QUIT")) {
           break;
         }
-        if (line.startsWith("CASO1")) {
-          os.println("VENGASE PA ACÁ");
+        /* If the message is private sent it to the given client. */
+        if (line.startsWith("REGISTER")) {
+          os.println("Registering...");
+          OutputStream out = null;
+          InputStream in = null;
+          try {
+            in = clientSocket.getInputStream();
+          } catch (IOException ex) {
+              System.out.println("Can't get socket input stream. ");
+          }
+          try {
+              out = new FileOutputStream("cert2.pem");
+          } catch (FileNotFoundException ex) {
+              System.out.println("File not found. ");
+          }
+
+          byte[] bytes = new byte[16*1024];
+
+          int count;
+          while ((count = in.read(bytes)) > 0) {
+              out.write(bytes, 0, count);
+          }
+
+          out.close();
+          os.println("Enter a login.");
+          name = is.readLine().trim();
+          os.println("Enter a password.");
+          password = is.readLine().trim();
         } else {
-        
         }
       }
+      
       os.println("*** Bye " + name + " ***");
 
       /*
@@ -137,7 +173,6 @@ class clientThread extends Thread {
       os.close();
       clientSocket.close();
     } catch (IOException e) {
-      }
-    
+    }
   }
 }
