@@ -11,6 +11,7 @@ public class MultiClient implements Runnable {
   private static DataInputStream is = null;
 
   private static BufferedReader inputLine = null;
+  private static boolean registered = false;
   private static boolean closed = false;
   
   public static void main(String[] args) {
@@ -53,6 +54,13 @@ public class MultiClient implements Runnable {
 
         /* Create a thread to read from the server. */
         new Thread(new MultiClient()).start();
+        /* Register */
+        while (!registered) {
+          os.println(inputLine.readLine().trim());
+        }
+
+        /* Send Certificate */
+
         while (!closed) {
           os.println(inputLine.readLine().trim());
         }
@@ -80,25 +88,37 @@ public class MultiClient implements Runnable {
      */
     String responseLine;
     try {
+
+      /* Register */
+      responseLine = is.readLine();
+      System.out.println(responseLine);
+      responseLine = is.readLine();
+      System.out.println(responseLine);
+      while ((responseLine = is.readLine()) != null) {
+        if (responseLine.equals("READY")) {
+          registered = true;
+          break; 
+        }
+        System.out.println(responseLine);
+      }
+
+      /* Send certificate */
+      //Socket sock = new Socket("127.0.0.1", 8080);
+      byte[] mybytearray = new byte[1024];
+      InputStream in = clientSocket.getInputStream();
+      FileOutputStream fos = new FileOutputStream("new.txt");
+      BufferedOutputStream bos = new BufferedOutputStream(fos);
+      int bytesRead = in.read(mybytearray, 0, mybytearray.length);
+      bos.write(mybytearray, 0, bytesRead);
+      bos.close();
+      //sock.close();
+
+      /* Start conversation */
       while ((responseLine = is.readLine()) != null) {
         System.out.println(responseLine);
         if (responseLine.indexOf("*** Bye") != -1)
           break;
         if (responseLine.equals("Registering...")) {
-           File file = new File("cert.pem");
-          // Get the size of the file
-          long length = file.length();
-          byte[] bytes = new byte[16 * 1024];
-          InputStream in = new FileInputStream(file);
-          OutputStream out = clientSocket.getOutputStream();
-
-          int count;
-          while ((count = in.read(bytes)) > 0) {
-              out.write(bytes, 0, count);
-          }
-
-          out.close();
-          in.close();
         }
 
       }

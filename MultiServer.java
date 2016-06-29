@@ -114,41 +114,49 @@ class clientThread extends Thread {
       String password = "";
       /* Welcome the new the client. */
       os.println("Welcome "
-          + " to our chat room.\nTo leave enter QUIT in a new line.");
+          + " to our download server.\nTo leave enter QUIT in a new line.");
+
+      /* Register required */
+      String line = is.readLine();
+      while (!line.startsWith("REGISTER")){
+        os.println("ERROR: You need to register. Type REGISTER.");
+        line = is.readLine();
+      }
+      os.println("Enter a login.");
+      name = is.readLine().trim();
+      os.println("Enter a password.");
+      password = is.readLine().trim();
+      os.println("READY");
+
+      /* Send certificate */
+      try {
+        //ServerSocket servsock = new ServerSocket(8080);
+        File myFile = new File("f.txt");
+        //Socket sock = servsock.accept();
+        //while(true) {
+          byte[] mybytearray = new byte[(int) myFile.length()];
+          BufferedInputStream bis = new BufferedInputStream(new FileInputStream(myFile));
+          bis.read(mybytearray, 0, mybytearray.length);
+          OutputStream out = clientSocket.getOutputStream();
+          out.write(mybytearray, 0, mybytearray.length);
+          out.flush();
+          //sock.close();
+          //break;
+        //}
+      } catch (IOException ex) {
+          System.out.println("Can't get socket input stream. ");
+      }
+
+
       /* Start the conversation. */
       while (true) {
-        String line = is.readLine();
+        line = is.readLine();
         if (line.startsWith("QUIT")) {
           break;
         }
         /* If the message is private sent it to the given client. */
         if (line.startsWith("REGISTER")) {
-          os.println("Registering...");
-          OutputStream out = null;
-          InputStream in = null;
-          try {
-            in = clientSocket.getInputStream();
-          } catch (IOException ex) {
-              System.out.println("Can't get socket input stream. ");
-          }
-          try {
-              out = new FileOutputStream("cert2.pem");
-          } catch (FileNotFoundException ex) {
-              System.out.println("File not found. ");
-          }
-
-          byte[] bytes = new byte[16*1024];
-
-          int count;
-          while ((count = in.read(bytes)) > 0) {
-              out.write(bytes, 0, count);
-          }
-
-          out.close();
-          os.println("Enter a login.");
-          name = is.readLine().trim();
-          os.println("Enter a password.");
-          password = is.readLine().trim();
+          os.println("You're registed.");
         } else {
         }
       }
